@@ -1,9 +1,12 @@
 #include "LetterBag.h"
+#include <algorithm>
+#include <random>
 
 
 LetterBag::LetterBag()
 {
 	initResources();
+	populateBag();
 }
 
 
@@ -68,4 +71,16 @@ void LetterBag::initResources()
 	letterScores['X'] = 8;
 	letterScores['Q'] = 10;
 	letterScores['Z'] = 10;
+}
+
+void LetterBag::populateBag()
+{
+	std::random_device randomDev;
+	std::mt19937 generator(randomDev());
+	for (auto const& letter : letterCounts) {
+		for (int i = 0; i < letter.second; ++i) {
+			bag.push_back(letter.first);
+		}
+	}
+	std::shuffle(bag.begin(), bag.end(), generator);
 }

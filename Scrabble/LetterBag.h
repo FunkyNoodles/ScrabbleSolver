@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <vector>
 class LetterBag
 {
 public:
@@ -10,6 +11,9 @@ private:
 	std::map<char, int> letterCounts;
 	std::map<char, int> letterScores;
 
+	std::vector<char> bag;
+
 	void initResources();
+	void populateBag();
 };
 
