@@ -14,6 +14,19 @@ LetterBag::~LetterBag()
 {
 }
 
+int LetterBag::remaining()
+{
+	return bag.size();
+}
+
+Letter LetterBag::getNext()
+{
+	char c = bag.back();
+	bag.pop_back();
+
+	return Letter(c, letterScores[c]);
+}
+
 void LetterBag::initResources()
 {
 	letterCounts[' '] = 2;
