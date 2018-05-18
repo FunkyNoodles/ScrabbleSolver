@@ -40,6 +40,7 @@
     <ClCompile Include="BoardTest.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TrieTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Scrabble\Scrabble.vcxproj">

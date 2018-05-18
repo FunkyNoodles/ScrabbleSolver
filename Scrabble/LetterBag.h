@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "Letter.h"
 class LetterBag
@@ -12,8 +12,8 @@ public:
 	Letter getNext();
 
 private:
-	std::map<char, int> letterCounts;
-	std::map<char, int> letterScores;
+	std::unordered_map<char, int> letterCounts;
+	std::unordered_map<char, int> letterScores;
 
 	std::vector<char> bag;
 

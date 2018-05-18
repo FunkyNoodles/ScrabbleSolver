@@ -23,7 +23,6 @@ public:
 	Board();
 	Board(const Board & b);
 	~Board();
-	Board & operator=(const Board & b);
 
 	BoardType getBoardType(const int r, const int c);
 
@@ -34,6 +33,5 @@ private:
 	void populateQuarterBoardTypes();
 	int reduceIndex(const int i);
 	
-
 };
 

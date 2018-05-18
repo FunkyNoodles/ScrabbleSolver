@@ -10,7 +10,7 @@ protected:
 	}
 };
 
-TEST(getBoardType, correct) {
+TEST(GetBoardType, correct) {
 	Board board;
 	EXPECT_EQ(board.getBoardType(7, 7), BoardType::DOUBLE_WORD);
 	EXPECT_EQ(board.getBoardType(9, 7), BoardType::NONE);

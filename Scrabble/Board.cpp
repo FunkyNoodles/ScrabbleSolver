@@ -32,17 +32,6 @@ Board::~Board()
 	delete[] board;
 }
 
-Board & Board::operator=(const Board & b)
-{
-	Board board;
-	for (int i = 0; i < WIDTH; ++i) {
-		for (int j = 0; j < HEIGHT; ++j) {
-			board.board[i][j] = b.board[i][j];
-		}
-	}
-	return board;
-}
-
 BoardType Board::getBoardType(const int r, const int c)
 {
 	int reducedR = reduceIndex(r);
