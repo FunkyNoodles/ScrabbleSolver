@@ -126,6 +126,7 @@
     <ClCompile Include="Dictionary.cpp" />
     <ClCompile Include="Letter.cpp" />
     <ClCompile Include="LetterBag.cpp" />
+    <ClCompile Include="Placement.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Trie.cpp" />
   </ItemGroup>
@@ -134,6 +135,7 @@
     <ClInclude Include="Dictionary.h" />
     <ClInclude Include="Letter.h" />
     <ClInclude Include="LetterBag.h" />
+    <ClInclude Include="Placement.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Trie.h" />
   </ItemGroup>
