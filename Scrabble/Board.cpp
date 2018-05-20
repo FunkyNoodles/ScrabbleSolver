@@ -5,17 +5,23 @@
 Board::Board()
 {
 	populateQuarterBoardTypes();
-	board = new Letter *[HEIGHT];
+	board = new char *[HEIGHT];
 	for (int i = 0; i < HEIGHT; ++i) {
-		board[i] = new Letter[WIDTH];
+		board[i] = new char[WIDTH];
+	}
+	for (int i = 0; i < WIDTH; ++i) {
+		for (int j = 0; j < HEIGHT; ++j) {
+			board[i][j] = 0;
+		}
 	}
 }
 
 Board::Board(const Board & b)
 {
-	board = new Letter *[HEIGHT];
+	populateQuarterBoardTypes();
+	board = new char *[HEIGHT];
 	for (int i = 0; i < HEIGHT; ++i) {
-		board[i] = new Letter[WIDTH];
+		board[i] = new char[WIDTH];
 	}
 	for (int i = 0; i < WIDTH; ++i) {
 		for (int j = 0; j < HEIGHT; ++j) {
@@ -41,6 +47,25 @@ BoardType Board::getBoardType(const int r, const int c)
 		return BoardType::NONE;
 	}
 	return it->second;
+}
+
+char Board::getLetter(const int r, const int c) const
+{
+	return board[r][c];
+}
+
+bool Board::place(Placement placement)
+{
+	int rinc, cinc;
+	if (placement.getPlacementType() == PlacementType::CROSS) {
+		rinc = 1;
+		cinc = 0;
+	}
+	else {
+		rinc = 0;
+		cinc = 1;
+	}
+	return false;
 }
 
 void Board::populateQuarterBoardTypes()
@@ -82,4 +107,19 @@ int Board::reduceIndex(const int i)
 	}
 }
 
-
+std::ostream & operator<<(std::ostream & os, const Board & board)
+{
+	for (int i = 0; i < board.WIDTH; ++i) {
+		for (int j = 0; j < board.HEIGHT; ++j) {
+			char c = board.getLetter(i, j);
+			if (c == 0) {
+				os << '.';
+			}
+			else {
+				os << c;
+			}
+		}
+		os << std::endl;
+	}
+	return os;
+}

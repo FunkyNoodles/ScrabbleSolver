@@ -7,10 +7,12 @@ const int OFFSET = 65;
 class TrieNode {
 public:
 	TrieNode * * children = nullptr;
+	TrieNode * parent;
 	bool isWord = false;
 
-	TrieNode() {
+	TrieNode(TrieNode * parent) {
 		children = new TrieNode*[SIZE];
+		this->parent = parent;
 		for (int i = 0; i < SIZE; ++i) {
 			children[i] = nullptr;
 		}
@@ -31,8 +33,14 @@ public:
 	bool buildTrie(std::string file);
 	void insert(std::string str);
 	bool find(std::string str);
+
+	void resetState();
+	bool next(char nextChar);
+	void prev();
+	bool isCurStateWord();
 private:
 	TrieNode * root;
+	TrieNode * curState;
 	void deleteNodes(TrieNode * root);
 };
 
