@@ -28,10 +28,13 @@ public:
 
 	BoardType getBoardType(const int r, const int c);
 	char getLetter(const int r, const int c) const;
+	void setLetter(const int r, const int c, const char ch);
 	bool place(Placement placement);
 	bool empty() const { return isEmpty; }
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
+	friend std::istream& operator>>(std::istream& is, Board& board);
+	bool operator==(const Board& other) const;
 
 private:
 	char * * board;

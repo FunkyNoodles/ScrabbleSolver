@@ -34,10 +34,7 @@ public:
 	void insert(std::string str);
 	bool find(std::string str);
 
-	void resetState();
-	bool next(char nextChar);
-	void prev();
-	bool isCurStateWord();
+	TrieNode * getRoot();
 private:
 	TrieNode * root;
 	TrieNode * curState;

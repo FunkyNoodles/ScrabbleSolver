@@ -54,18 +54,51 @@ char Board::getLetter(const int r, const int c) const
 	return board[r][c];
 }
 
+void Board::setLetter(const int r, const int c, const char ch)
+{
+	if (r > WIDTH || c > HEIGHT || r < 0 || c < 0) {
+		throw std::out_of_range("Board index out of range");
+	}
+	board[r][c] = ch;
+}
+
 bool Board::place(Placement placement)
 {
+	isEmpty = false;
+	int r = placement.getX();
+	int c = placement.getY();
 	int rinc, cinc;
 	if (placement.getPlacementType() == PlacementType::CROSS) {
-		rinc = 1;
-		cinc = 0;
-	}
-	else {
 		rinc = 0;
 		cinc = 1;
 	}
+	else {
+		rinc = 1;
+		cinc = 0;
+	}
+	int i = 0;
+	while (i < placement.getLetters().size()) {
+		const char & ch = placement.getLetters()[i];
+		if (board[r][c] == 0) {
+			board[r][c] = ch;
+			++i;
+		}
+		r += rinc;
+		c += cinc;
+	}
 	return false;
+}
+
+bool Board::operator==(const Board & other) const
+{
+	for (int i = 0; i < WIDTH; ++i) {
+		for (int j = 0; j < HEIGHT; ++j) {
+			if (board[i][j] != other.getLetter(i, j)) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 void Board::populateQuarterBoardTypes()
@@ -122,4 +155,17 @@ std::ostream & operator<<(std::ostream & os, const Board & board)
 		os << std::endl;
 	}
 	return os;
+}
+
+std::istream & operator>>(std::istream & is, Board & board)
+{
+	char c;
+	for (int i = 0; i < board.WIDTH; ++i) {
+		for (int j = 0; j < board.HEIGHT; ++j) {
+			is >> c;
+			c = (c == '.') ? 0 : c;
+			board.setLetter(i, j, c);
+		}
+	}
+	return is;
 }

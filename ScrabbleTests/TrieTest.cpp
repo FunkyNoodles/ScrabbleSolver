@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "../Scrabble/Trie.h"
+#include "../Scrabble/TrieTracker.h"
 
 class TrieTest : public ::testing::Test {
 protected:
@@ -36,20 +37,21 @@ TEST_F(TrieTest, insertInvalidWordShouldThrow) {
 }
 
 TEST_F(TrieTest, stateStepsCorrect) {
-	EXPECT_EQ(trie->next('X'), false);
-	trie->next('V');
-	trie->next('E');
-	trie->next('A');
-	EXPECT_EQ(trie->isCurStateWord(), false);
-	trie->next('L');
-	EXPECT_EQ(trie->isCurStateWord(), true);
-	trie->next('E');
-	EXPECT_EQ(trie->isCurStateWord(), false);
-	trie->prev();
-	EXPECT_EQ(trie->isCurStateWord(), true);
-	trie->resetState();
-	trie->prev();
-	EXPECT_EQ(trie->next('X'), false);
-	EXPECT_EQ(trie->next('V'), true);
-	EXPECT_EQ(trie->isCurStateWord(), false);
+	TrieTracker * tracker = new TrieTracker(trie);
+	EXPECT_EQ(tracker->next('X'), false);
+	tracker->next('V');
+	tracker->next('E');
+	tracker->next('A');
+	EXPECT_EQ(tracker->isCurStateWord(), false);
+	tracker->next('L');
+	EXPECT_EQ(tracker->isCurStateWord(), true);
+	tracker->next('E');
+	EXPECT_EQ(tracker->isCurStateWord(), false);
+	tracker->prev();
+	EXPECT_EQ(tracker->isCurStateWord(), true);
+	tracker->resetState();
+	tracker->prev();
+	EXPECT_EQ(tracker->next('X'), false);
+	EXPECT_EQ(tracker->next('V'), true);
+	EXPECT_EQ(tracker->isCurStateWord(), false);
 }

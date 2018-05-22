@@ -58,32 +58,11 @@ bool Trie::find(std::string str)
 	return cur->isWord;
 }
 
-void Trie::resetState()
+TrieNode * Trie::getRoot()
 {
-	curState = root;
+	return root;
 }
 
-bool Trie::next(char nextChar)
-{
-	TrieNode * nextState = curState->children[nextChar - OFFSET];
-	if (nextState != nullptr) {
-		curState = nextState;
-		return true;
-	}
-	return false;
-}
-
-void Trie::prev()
-{
-	if (curState != root) {
-		curState = curState->parent;
-	}
-}
-
-bool Trie::isCurStateWord()
-{
-	return curState->isWord;
-}
 
 void Trie::deleteNodes(TrieNode * root)
 {
