@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Dictionary.h" />
+    <ClInclude Include="EnumUtils.h" />
     <ClInclude Include="Letter.h" />
     <ClInclude Include="LetterBag.h" />
     <ClInclude Include="Placement.h" />

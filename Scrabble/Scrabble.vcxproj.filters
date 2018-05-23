@@ -65,5 +65,8 @@
     <ClInclude Include="TrieTracker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EnumUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

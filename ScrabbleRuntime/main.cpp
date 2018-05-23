@@ -28,7 +28,8 @@ int main() {
 	Board b;
 
 	Placement p0(7, 7, PlacementType::CROSS, "WEPT", 18);
-	Placement p1(5, 10, PlacementType::DOWN, "LI", 3);
+	//Placement p1(5, 10, PlacementType::DOWN, "LI", 3);
+	Placement p1(7, 9, PlacementType::DOWN, "I", 3);
 	b.place(p0);
 	b.place(p1);
 	std::cout << b << std::endl;

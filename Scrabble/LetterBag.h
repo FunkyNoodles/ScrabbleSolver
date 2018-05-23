@@ -11,6 +11,8 @@ public:
 	int remaining();
 	Letter getNext();
 
+	int getLetterScore(char tile);
+
 private:
 	std::unordered_map<char, int> letterCounts;
 	std::unordered_map<char, int> letterScores;

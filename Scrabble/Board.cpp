@@ -1,9 +1,11 @@
 #include "Board.h"
+#include "EnumUtils.h"
 #include <utility>
 
 
 Board::Board()
 {
+	letterBag = new LetterBag();
 	populateQuarterBoardTypes();
 	board = new char *[HEIGHT];
 	for (int i = 0; i < HEIGHT; ++i) {
@@ -16,26 +18,13 @@ Board::Board()
 	}
 }
 
-Board::Board(const Board & b)
-{
-	populateQuarterBoardTypes();
-	board = new char *[HEIGHT];
-	for (int i = 0; i < HEIGHT; ++i) {
-		board[i] = new char[WIDTH];
-	}
-	for (int i = 0; i < WIDTH; ++i) {
-		for (int j = 0; j < HEIGHT; ++j) {
-			board[i][j] = b.board[i][j];
-		}
-	}
-}
-
 Board::~Board()
 {
 	for (int i = 0; i < HEIGHT; ++i) {
 		delete[] board[i];
 	}
 	delete[] board;
+	delete letterBag;
 }
 
 BoardType Board::getBoardType(const int r, const int c)
@@ -51,6 +40,9 @@ BoardType Board::getBoardType(const int r, const int c)
 
 char Board::getLetter(const int r, const int c) const
 {
+	if (r > WIDTH || c > HEIGHT || r < 0 || c < 0) {
+		return 0;
+	}
 	return board[r][c];
 }
 
@@ -68,14 +60,8 @@ bool Board::place(Placement placement)
 	int r = placement.getX();
 	int c = placement.getY();
 	int rinc, cinc;
-	if (placement.getPlacementType() == PlacementType::CROSS) {
-		rinc = 0;
-		cinc = 1;
-	}
-	else {
-		rinc = 1;
-		cinc = 0;
-	}
+	EnumUtils::setIncrements(placement.getPlacementType(), rinc, cinc);
+
 	int i = 0;
 	while (i < placement.getLetters().size()) {
 		const char & ch = placement.getLetters()[i];
@@ -87,6 +73,32 @@ bool Board::place(Placement placement)
 		c += cinc;
 	}
 	return false;
+}
+
+int Board::getLetterScore(char tile)
+{
+	return letterBag->getLetterScore(tile);
+}
+
+int Board::getTileScore(char tile, const int r, const int c, int & multiplier)
+{
+	int letterScore = getLetterScore(tile);
+	switch (getBoardType(r, c)) {
+	case BoardType::TRIPLE_WORD:
+		multiplier *= 3;
+		break;
+	case BoardType::DOUBLE_WORD:
+		multiplier *= 2;
+		break;
+	case BoardType::TRIPLE_LETTER:
+		letterScore *= 3;
+		break;
+	case BoardType::DOUBLE_LETTER:
+		letterScore *= 2;
+		break;
+	default:;
+	}
+	return letterScore;
 }
 
 bool Board::operator==(const Board & other) const

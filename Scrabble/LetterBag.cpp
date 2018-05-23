@@ -27,6 +27,11 @@ Letter LetterBag::getNext()
 	return Letter(c, letterScores[c]);
 }
 
+int LetterBag::getLetterScore(char tile)
+{
+	return letterScores[tile];
+}
+
 void LetterBag::initResources()
 {
 	letterCounts[' '] = 2;
