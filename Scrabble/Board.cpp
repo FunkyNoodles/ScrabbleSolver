@@ -11,8 +11,8 @@ Board::Board()
 	for (int i = 0; i < HEIGHT; ++i) {
 		board[i] = new char[WIDTH];
 	}
-	for (int i = 0; i < WIDTH; ++i) {
-		for (int j = 0; j < HEIGHT; ++j) {
+	for (int i = 0; i < HEIGHT; ++i) {
+		for (int j = 0; j < WIDTH; ++j) {
 			board[i][j] = 0;
 		}
 	}
@@ -40,7 +40,7 @@ BoardType Board::getBoardType(const int r, const int c)
 
 char Board::getLetter(const int r, const int c) const
 {
-	if (r > WIDTH || c > HEIGHT || r < 0 || c < 0) {
+	if (r >= WIDTH || c >= HEIGHT || r < 0 || c < 0) {
 		return 0;
 	}
 	return board[r][c];
@@ -134,11 +134,12 @@ void Board::populateQuarterBoardTypes()
 
 	// Double letter
 	quarterBoardTypes[std::make_pair(0, 3)] = BoardType::DOUBLE_LETTER;
-	quarterBoardTypes[std::make_pair(0, 3)] = BoardType::DOUBLE_LETTER;
+	quarterBoardTypes[std::make_pair(3, 0)] = BoardType::DOUBLE_LETTER;
 	quarterBoardTypes[std::make_pair(2, 6)] = BoardType::DOUBLE_LETTER;
 	quarterBoardTypes[std::make_pair(6, 2)] = BoardType::DOUBLE_LETTER;
 	quarterBoardTypes[std::make_pair(7, 3)] = BoardType::DOUBLE_LETTER;
 	quarterBoardTypes[std::make_pair(3, 7)] = BoardType::DOUBLE_LETTER;
+	quarterBoardTypes[std::make_pair(6, 6)] = BoardType::DOUBLE_LETTER;
 
 }
 

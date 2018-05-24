@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 
 enum class PlacementType {
@@ -18,6 +19,8 @@ public:
 	int getScore() const;
 	const PlacementType & getPlacementType() const;
 	const std::string & getLetters() const;
+
+	friend std::ostream& operator<<(std::ostream& os, const Placement& p);
 private:
 	int x, y, score;
 	PlacementType type;

@@ -28,16 +28,20 @@ int main() {
 	Board b;
 
 	Placement p0(7, 7, PlacementType::CROSS, "WEPT", 18);
-	//Placement p1(5, 10, PlacementType::DOWN, "LI", 3);
-	Placement p1(7, 9, PlacementType::DOWN, "I", 3);
+	Placement p1(5, 10, PlacementType::DOWN, "LI", 3);
+	Placement p2(2, 10, PlacementType::DOWN, "ABOIONS", 3);
+	Placement p3(11, 6, PlacementType::CROSS, "GOAD", 3);
+	//Placement p1(7, 9, PlacementType::DOWN, "I", 3);
 	b.place(p0);
 	b.place(p1);
+	//b.place(p2);
+	//b.place(p3);
 	std::cout << b << std::endl;
 
 	begin = std::chrono::steady_clock::now();
 	player.solve(b, tracker);
 	end = std::chrono::steady_clock::now();
-	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << std::endl;
 	std::cout << b;
 	std::cout << "Done" << std::endl;
 	while(1){}

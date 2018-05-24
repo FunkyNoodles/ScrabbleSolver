@@ -43,3 +43,10 @@ const std::string & Placement::getLetters() const
 {
 	return letters;
 }
+
+std::ostream & operator<<(std::ostream & os, const Placement & p)
+{
+	std::string typeStr = (p.getPlacementType() == PlacementType::DOWN) ? "DOWN" : "CROSS";
+	os << p.getX() << "\t" << p.getY() << "\t" << typeStr << "\t" << p.getLetters() << "\t" << p.getScore();
+	return os;
+}

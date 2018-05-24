@@ -14,9 +14,9 @@ public:
 	~Player();
 
 	Placement solve(Board& board, TrieTracker& tracker);
-	Placement solve(Board& board, TrieTracker& tracker, const int r, const int c,
-		const PlacementType type, std::vector<Placement> & results, std::string & curWord,
-		bool legalPlacement);
+	void solve(Board& board, TrieTracker& tracker, const int r, const int c, const int rStart, const int cStart,
+		const PlacementType type, std::vector<Placement> & results, std::string & curWord, std::string & curLetters,
+		bool legalPlacement, int multiplier, int perpendicularWordScores, int score);
 
 private:
 	std::list<char> letters;
