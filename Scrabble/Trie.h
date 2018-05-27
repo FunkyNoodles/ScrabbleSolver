@@ -37,7 +37,6 @@ public:
 	TrieNode * getRoot();
 private:
 	TrieNode * root;
-	TrieNode * curState;
 	void deleteNodes(TrieNode * root);
 };
 

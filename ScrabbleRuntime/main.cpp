@@ -44,6 +44,5 @@ int main() {
 	std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << std::endl;
 	std::cout << b;
 	std::cout << "Done" << std::endl;
-	while(1){}
 	return 0;
 }

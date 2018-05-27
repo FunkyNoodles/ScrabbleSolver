@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <queue>
 #include <functional>
+#include <chrono>
 
 
 Player::Player()
@@ -33,6 +34,7 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	std::vector<Placement> results;
 	std::string curWord;
 	std::string curLetters;
+	SeenTrie * seen = new SeenTrie();
 
 	auto placementCmp = [](const Placement& lhs, const Placement& rhs) {
 		return lhs.getScore() < rhs.getScore();
@@ -41,21 +43,32 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 		std::function<int(const Placement& x, const Placement&  y)> > solutions(placementCmp);
 
 	if (board.empty()) {
-		solve(board, tracker, board.WIDTH / 2, board.HEIGHT / 2, board.WIDTH / 2, board.HEIGHT / 2, 
+		seen->reset();
+		solve(board, tracker, seen, board.WIDTH / 2, board.HEIGHT / 2, board.WIDTH / 2, board.HEIGHT / 2,
 			PlacementType::CROSS, results, curWord, curLetters, true, 1, 0, 0);
 	}
 	else {
+		int lastSize = 0;
 		for (int i = 0; i < board.HEIGHT / 2; ++i) {
 			for (int j = 0; j < board.WIDTH; ++j) {
+				auto begin = std::chrono::steady_clock::now();
 				tracker.resetState();
-				solve(board, tracker, i, j, i, j, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
+				seen->reset();
+				solve(board, tracker, seen, i, j, i, j, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
 				tracker.resetState();
-				solve(board, tracker, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+				seen->reset();
+				solve(board, tracker, seen, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+				auto end = std::chrono::steady_clock::now();
+				std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
+				std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
+				lastSize = results.size();
 			}
 		}
 		//tracker.resetState();
-		//solve(board, tracker, 6, 6, 6, 6, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+		//solve(board, tracker, seen, 6, 6, 6, 6, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
 	}
+	delete seen;
+
 	for (auto r : results) {
 		solutions.push(r);
 	}
@@ -69,7 +82,7 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	return Placement();
 }
 
-void Player::solve(Board& board, TrieTracker& tracker, const int r, const int c, const int rStart, const int cStart,
+void Player::solve(Board& board, TrieTracker& tracker, SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
 	const PlacementType type, std::vector<Placement> & results, std::string & curWord,
 	std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score)
 {
@@ -93,7 +106,6 @@ void Player::solve(Board& board, TrieTracker& tracker, const int r, const int c,
 		char curChar = board.getLetter(r, c);
 		if (curChar == 0) {
 			// Current location empty
-			std::unordered_set<std::string> seen;
 
 			int size = letters.size();
 			for (int i = 0; i < size; ++i) {
@@ -121,22 +133,25 @@ void Player::solve(Board& board, TrieTracker& tracker, const int r, const int c,
 				letters.pop_front();
 				curWord.push_back(newChar);
 				curLetters.push_back(newChar);
-				if (seen.find(curLetters) == seen.end() && tracker.next(newChar)) {
-				//if (tracker.next(newChar)) {
-					solve(board, tracker, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+				bool hasNext = seen->hasNext(newChar);
+				if (hasNext == false && tracker.next(newChar)) {
+					seen->insert(newChar);
+					seen->next(newChar);
+					solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
 						newMultiplier, perpendicularWordScores + perpendicularWordScore, score + scoreToAdd);
+					seen->prev();
 				}
-				seen.insert(curLetters);
 				curLetters.pop_back();
 				curWord.pop_back();
 				letters.push_back(newChar);
 			}
+
 		}
 		else {
 			if (tracker.next(curChar)) {
 				int scoreToAdd = board.getLetterScore(curChar);
 				curWord.push_back(curChar);
-				solve(board, tracker, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, true,
+				solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, true,
 					multiplier, perpendicularWordScores, score + scoreToAdd);
 				curWord.pop_back();
 			}

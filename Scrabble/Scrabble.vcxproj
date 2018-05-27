@@ -128,6 +128,7 @@
     <ClCompile Include="LetterBag.cpp" />
     <ClCompile Include="Placement.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="SeenTrie.cpp" />
     <ClCompile Include="Trie.cpp" />
     <ClCompile Include="TrieTracker.cpp" />
   </ItemGroup>
@@ -139,6 +140,7 @@
     <ClInclude Include="LetterBag.h" />
     <ClInclude Include="Placement.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="SeenTrie.h" />
     <ClInclude Include="Trie.h" />
     <ClInclude Include="TrieTracker.h" />
   </ItemGroup>

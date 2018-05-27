@@ -5,6 +5,7 @@
 #include "Board.h"
 #include "Trie.h"
 #include "Placement.h"
+#include "SeenTrie.h"
 #include "TrieTracker.h"
 
 class Player
@@ -14,7 +15,7 @@ public:
 	~Player();
 
 	Placement solve(Board& board, TrieTracker& tracker);
-	void solve(Board& board, TrieTracker& tracker, const int r, const int c, const int rStart, const int cStart,
+	void solve(Board& board, TrieTracker& tracker, SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
 		const PlacementType type, std::vector<Placement> & results, std::string & curWord, std::string & curLetters,
 		bool legalPlacement, int multiplier, int perpendicularWordScores, int score);
 

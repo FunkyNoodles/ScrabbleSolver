@@ -7,7 +7,6 @@
 Trie::Trie()
 {
 	root = new TrieNode(nullptr);
-	curState = root;
 }
 
 Trie::~Trie()
