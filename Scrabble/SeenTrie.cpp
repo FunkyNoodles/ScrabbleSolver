@@ -2,43 +2,43 @@
 
 
 
-SeenTrie::SeenTrie()
+SeenTrie::SeenTrie::SeenTrie()
 {
-	root = new TrieNode(nullptr);
+	root = new SeenTrieNode(nullptr);
 	curState = root;
 }
 
-SeenTrie::~SeenTrie()
+SeenTrie::SeenTrie::~SeenTrie()
 {
 	deleteNodes(root);
 }
 
-void SeenTrie::reset()
+void SeenTrie::SeenTrie::reset()
 {
 	deleteNodes(root);
-	root = new TrieNode(nullptr);
+	root = new SeenTrieNode(nullptr);
 	curState = root;
 }
 
-void SeenTrie::insert(char c)
+void SeenTrie::SeenTrie::insert(char c)
 {
-	if (curState->children[c - OFFSET] == nullptr) {
-		curState->children[c - OFFSET] = new TrieNode(curState);
+	if (curState->children[charToIndex(c)] == nullptr) {
+		curState->children[charToIndex(c)] = new SeenTrieNode(curState);
 	}
 }
 
-bool SeenTrie::hasNext(char nextChar)
+bool SeenTrie::SeenTrie::hasNext(char nextChar)
 {
-	TrieNode * nextState = curState->children[nextChar - OFFSET];
+	SeenTrieNode * nextState = curState->children[charToIndex(nextChar)];
 	if (nextState != nullptr) {
 		return true;
 	}
 	return false;
 }
 
-bool SeenTrie::next(char nextChar)
+bool SeenTrie::SeenTrie::next(char nextChar)
 {
-	TrieNode * nextState = curState->children[nextChar - OFFSET];
+	SeenTrieNode * nextState = curState->children[charToIndex(nextChar)];
 	if (nextState != nullptr) {
 		curState = nextState;
 		return true;
@@ -46,14 +46,14 @@ bool SeenTrie::next(char nextChar)
 	return false;
 }
 
-void SeenTrie::prev()
+void SeenTrie::SeenTrie::prev()
 {
 	if (curState != root) {
 		curState = curState->parent;
 	}
 }
 
-void SeenTrie::deleteNodes(TrieNode * root)
+void SeenTrie::SeenTrie::deleteNodes(SeenTrieNode * root)
 {
 	if (root == nullptr) {
 		return;
@@ -62,4 +62,13 @@ void SeenTrie::deleteNodes(TrieNode * root)
 		deleteNodes(root->children[i]);
 	}
 	delete root;
+}
+
+int SeenTrie::SeenTrie::charToIndex(char c)
+{
+	int i = c - UPPER_OFFSET;
+	if (i > 25) {
+		i = c - LOWER_OFFSET + 26;
+	}
+	return i;
 }

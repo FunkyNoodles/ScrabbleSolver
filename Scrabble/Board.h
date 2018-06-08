@@ -32,7 +32,7 @@ public:
 	bool place(Placement placement);
 	bool empty() const { return isEmpty; }
 	int getLetterScore(char tile);
-	int getTileScore(char tile, const int r, const int c, int& multiplier);
+	int getTileScore(Letter letter, const int r, const int c, int& multiplier);
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 	friend std::istream& operator>>(std::istream& is, Board& board);

@@ -2,9 +2,11 @@
 class Letter
 {
 public:
-	Letter();
 	Letter(char letter, int value);
 	~Letter();
+
+	char getLetter();
+	int getValue();
 
 private:
 	char letter;

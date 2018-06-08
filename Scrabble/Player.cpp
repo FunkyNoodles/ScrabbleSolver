@@ -5,24 +5,11 @@
 #include <queue>
 #include <functional>
 #include <chrono>
+#include <cctype>
 
 
 Player::Player()
 {
-	letters.push_back('S');
-	letters.push_back('O');
-	letters.push_back('B');
-	letters.push_back('I');
-	letters.push_back('A');
-	letters.push_back('O');
-	letters.push_back('N');
-	/*letters.push_back('I');
-	letters.push_back('N');
-	letters.push_back('E');
-	letters.push_back('Z');
-	letters.push_back('R');
-	letters.push_back('I');
-	letters.push_back('U');*/
 }
 
 Player::~Player()
@@ -34,13 +21,30 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	std::vector<Placement> results;
 	std::string curWord;
 	std::string curLetters;
-	SeenTrie * seen = new SeenTrie();
+	SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
 
 	auto placementCmp = [](const Placement& lhs, const Placement& rhs) {
 		return lhs.getScore() < rhs.getScore();
 	};
 	std::priority_queue<Placement, std::vector<Placement>,
 		std::function<int(const Placement& x, const Placement&  y)> > solutions(placementCmp);
+
+
+	letters.push_back(Letter('S', board.getLetterScore('S')));
+	letters.push_back(Letter('O', board.getLetterScore('O')));
+	letters.push_back(Letter('B', board.getLetterScore('B')));
+	letters.push_back(Letter('I', board.getLetterScore('I')));
+	letters.push_back(Letter('A', board.getLetterScore('A')));
+	letters.push_back(Letter('O', board.getLetterScore('O')));
+	letters.push_back(Letter(' ', board.getLetterScore(' ')));
+
+	/*letters.push_back(Letter('I', board.getLetterScore('I')));
+	letters.push_back(Letter('A', board.getLetterScore('A')));
+	letters.push_back(Letter('B', board.getLetterScore('B')));
+	letters.push_back(Letter('O', board.getLetterScore('O')));
+	letters.push_back(Letter('S', board.getLetterScore('S')));
+	letters.push_back(Letter('O', board.getLetterScore('O')));
+	letters.push_back(Letter('N', board.getLetterScore('N')));*/
 
 	if (board.empty()) {
 		seen->reset();
@@ -49,23 +53,28 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	}
 	else {
 		int lastSize = 0;
-		for (int i = 0; i < board.HEIGHT / 2; ++i) {
+		for (int i = 0; i < board.HEIGHT; ++i) {
 			for (int j = 0; j < board.WIDTH; ++j) {
 				auto begin = std::chrono::steady_clock::now();
-				tracker.resetState();
-				seen->reset();
-				solve(board, tracker, seen, i, j, i, j, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
-				tracker.resetState();
-				seen->reset();
-				solve(board, tracker, seen, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+				if (board.getLetter(i - 1, j) == 0) {
+					tracker.resetState();
+					seen->reset();
+					solve(board, tracker, seen, i, j, i, j, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
+				}
+
+				if (board.getLetter(i, j - 1) == 0) {
+					tracker.resetState();
+					seen->reset();
+					solve(board, tracker, seen, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+				}
 				auto end = std::chrono::steady_clock::now();
-				std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
-				std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
+				//std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
+				//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
 				lastSize = results.size();
 			}
 		}
 		//tracker.resetState();
-		//solve(board, tracker, seen, 6, 6, 6, 6, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
+		//solve(board, tracker, seen, 2, 10, 2, 10, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
 	}
 	delete seen;
 
@@ -82,7 +91,7 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	return Placement();
 }
 
-void Player::solve(Board& board, TrieTracker& tracker, SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
+void Player::solve(Board& board, TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
 	const PlacementType type, std::vector<Placement> & results, std::string & curWord,
 	std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score)
 {
@@ -109,41 +118,21 @@ void Player::solve(Board& board, TrieTracker& tracker, SeenTrie * seen, const in
 
 			int size = letters.size();
 			for (int i = 0; i < size; ++i) {
-				char newChar = letters.front();
-
-				// Score the newly placed tile
-				TrieTracker * perpendicularTracker = new TrieTracker(tracker);
-				perpendicularTracker->resetState();
-				int perpendicularWordScore = scorePlacedTile(board, *perpendicularTracker, r, c,
-					EnumUtils::getOther(type), newChar);
-				delete perpendicularTracker;
-				if (perpendicularWordScore < 0) {
-					// Cannot place this new tile
-					letters.pop_front();
-					letters.push_back(newChar);
-					continue;
-				}
-				else if (perpendicularWordScore > 0) {
-					legalPlacement = true;
-				}
-				// Check for premium spots
-				int newMultiplier = multiplier;
-				int scoreToAdd = board.getTileScore(newChar, r, c, newMultiplier);
-
+				Letter newLetter = letters.front();
 				letters.pop_front();
-				curWord.push_back(newChar);
-				curLetters.push_back(newChar);
-				bool hasNext = seen->hasNext(newChar);
-				if (hasNext == false && tracker.next(newChar)) {
-					seen->insert(newChar);
-					seen->next(newChar);
-					solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
-						newMultiplier, perpendicularWordScores + perpendicularWordScore, score + scoreToAdd);
-					seen->prev();
+				char newChar = newLetter.getLetter();
+				if (newChar == ' ') {
+					for (char spaceSub = 'a'; spaceSub <= 'z'; ++spaceSub) {
+						explore(board, tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+							multiplier, perpendicularWordScores, score, rinc, cinc, Letter(spaceSub, board.getLetterScore(' ')));
+					}
 				}
-				curLetters.pop_back();
-				curWord.pop_back();
-				letters.push_back(newChar);
+				else {
+					explore(board, tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+						multiplier, perpendicularWordScores, score, rinc, cinc, newLetter);
+				}
+				
+				letters.push_back(newLetter);
 			}
 
 		}
@@ -161,7 +150,7 @@ void Player::solve(Board& board, TrieTracker& tracker, SeenTrie * seen, const in
 	return;
 }
 
-int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, const int c, const PlacementType type, char tile)
+int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, const int c, const PlacementType type, Letter tile)
 {
 	int rStart, cStart, rinc, cinc;
 	EnumUtils::setIncrements(type, rinc, cinc);
@@ -177,7 +166,7 @@ int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, c
 		nextChar = board.getLetter(rCur + rinc, cCur + cinc);
 		
 		if (rCur == r && cCur == c) {
-			curChar = tile;
+			curChar = std::toupper(tile.getLetter());
 			curCharScore = board.getTileScore(tile, r, c, multiplier);
 		}
 		else {
@@ -212,4 +201,40 @@ void Player::findStartIndices(Board & board, const int r, const int c, int & rSt
 	}
 	rStart = rCur;
 	cStart = cCur;
+}
+
+void Player::explore(Board & board, TrieTracker & tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
+	const PlacementType type, std::vector<Placement>& results, std::string & curWord, std::string & curLetters,
+	bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter)
+{
+	char newChar = newLetter.getLetter();
+	// Score the newly placed tile
+	TrieTracker * perpendicularTracker = new TrieTracker(tracker);
+	perpendicularTracker->resetState();
+	int perpendicularWordScore = scorePlacedTile(board, *perpendicularTracker, r, c,
+		EnumUtils::getOther(type), newLetter);
+	delete perpendicularTracker;
+	if (perpendicularWordScore < 0) {
+		return;
+	}
+	else if (perpendicularWordScore > 0) {
+		legalPlacement = true;
+	}
+	// Check for premium spots
+	int newMultiplier = multiplier;
+	int scoreToAdd = board.getTileScore(newLetter, r, c, newMultiplier);
+
+	curWord.push_back(newChar);
+	curLetters.push_back(newChar);
+	bool hasNext = seen->hasNext(newChar);
+	if (hasNext == false && tracker.next(std::toupper(newChar))) {
+	//if (tracker.next(newChar)) {
+		seen->insert(newChar);
+		seen->next(newChar);
+		solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+			newMultiplier, perpendicularWordScores + perpendicularWordScore, score + scoreToAdd);
+		seen->prev();
+	}
+	curLetters.pop_back();
+	curWord.pop_back();
 }

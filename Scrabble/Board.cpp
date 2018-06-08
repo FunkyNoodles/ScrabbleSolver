@@ -80,9 +80,9 @@ int Board::getLetterScore(char tile)
 	return letterBag->getLetterScore(tile);
 }
 
-int Board::getTileScore(char tile, const int r, const int c, int & multiplier)
+int Board::getTileScore(Letter letter, const int r, const int c, int & multiplier)
 {
-	int letterScore = getLetterScore(tile);
+	int letterScore = letter.getValue();
 	switch (getBoardType(r, c)) {
 	case BoardType::TRIPLE_WORD:
 		multiplier *= 3;

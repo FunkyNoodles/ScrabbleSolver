@@ -36,6 +36,11 @@
     <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="BoardTest.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -108,7 +113,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
