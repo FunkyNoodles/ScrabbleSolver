@@ -5,8 +5,8 @@ public:
 	Letter(char letter, int value);
 	~Letter();
 
-	char getLetter();
-	int getValue();
+	char getLetter() const;
+	int getValue() const;
 
 private:
 	char letter;

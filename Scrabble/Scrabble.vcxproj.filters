@@ -70,5 +70,8 @@
     <ClInclude Include="SeenTrie.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlacementStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

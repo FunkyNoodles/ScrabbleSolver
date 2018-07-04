@@ -9,6 +9,7 @@ public:
 	~LetterBag();
 
 	int remaining();
+	bool empty() const;
 	Letter getNext();
 
 	int getLetterScore(char tile);

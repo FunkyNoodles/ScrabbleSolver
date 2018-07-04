@@ -4,6 +4,7 @@
 
 Placement::Placement()
 {
+	this->score = -1;
 }
 
 Placement::Placement(const int x, const int y, const PlacementType type, const std::string letters, const int score)

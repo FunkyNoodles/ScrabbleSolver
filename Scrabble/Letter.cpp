@@ -10,12 +10,12 @@ Letter::~Letter()
 {
 }
 
-char Letter::getLetter()
+char Letter::getLetter() const
 {
 	return this->letter;
 }
 
-int Letter::getValue()
+int Letter::getValue() const
 {
 	return this->value;
 }

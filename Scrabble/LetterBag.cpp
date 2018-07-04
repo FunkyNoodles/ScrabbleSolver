@@ -19,6 +19,11 @@ int LetterBag::remaining()
 	return bag.size();
 }
 
+bool LetterBag::empty() const
+{
+	return bag.empty();
+}
+
 Letter LetterBag::getNext()
 {
 	char c = bag.back();
@@ -95,10 +100,15 @@ void LetterBag::populateBag()
 {
 	std::random_device randomDev;
 	std::mt19937 generator(randomDev());
+	generator.seed(200);
 	for (auto const& letter : letterCounts) {
 		for (int i = 0; i < letter.second; ++i) {
 			bag.push_back(letter.first);
 		}
 	}
+	std::shuffle(bag.begin(), bag.end(), generator);
+	std::shuffle(bag.begin(), bag.end(), generator);
+	std::shuffle(bag.begin(), bag.end(), generator);
+	std::shuffle(bag.begin(), bag.end(), generator);
 	std::shuffle(bag.begin(), bag.end(), generator);
 }

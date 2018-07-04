@@ -1,11 +1,12 @@
 #include "Player.h"
 #include "EnumUtils.h"
-#include <iostream>
 #include <unordered_set>
 #include <queue>
 #include <functional>
 #include <chrono>
 #include <cctype>
+#include <algorithm>
+#include <string>
 
 
 Player::Player()
@@ -16,7 +17,7 @@ Player::~Player()
 {
 }
 
-Placement Player::solve(Board& board, TrieTracker& tracker)
+Placement Player::solve(Board& board, TrieTracker& tracker, PlacementStrategy strategy)
 {
 	std::vector<Placement> results;
 	std::string curWord;
@@ -30,13 +31,13 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 		std::function<int(const Placement& x, const Placement&  y)> > solutions(placementCmp);
 
 
-	letters.push_back(Letter('S', board.getLetterScore('S')));
+	/*letters.push_back(Letter('S', board.getLetterScore('S')));
 	letters.push_back(Letter('O', board.getLetterScore('O')));
 	letters.push_back(Letter('B', board.getLetterScore('B')));
 	letters.push_back(Letter('I', board.getLetterScore('I')));
 	letters.push_back(Letter('A', board.getLetterScore('A')));
-	letters.push_back(Letter('O', board.getLetterScore('O')));
 	letters.push_back(Letter(' ', board.getLetterScore(' ')));
+	letters.push_back(Letter(' ', board.getLetterScore(' ')));*/
 
 	/*letters.push_back(Letter('I', board.getLetterScore('I')));
 	letters.push_back(Letter('A', board.getLetterScore('A')));
@@ -81,14 +82,83 @@ Placement Player::solve(Board& board, TrieTracker& tracker)
 	for (auto r : results) {
 		solutions.push(r);
 	}
-	int c0 = 0;
+	/*int c0 = 0;
 	while (c0 < 25 && !solutions.empty())
 	{
 		std::cout << solutions.top() << std::endl;
 		solutions.pop();
 		c0++;
+	}*/
+	Placement finalSolution;
+	switch (strategy)
+	{
+	case PlacementStrategy::BEST:
+		if (solutions.empty()) {
+			finalSolution = Placement();
+		}
+		else {
+			finalSolution = solutions.top();
+		}
+		break;
+	default:
+		break;
 	}
-	return Placement();
+	return finalSolution;
+}
+
+void Player::draw(LetterBag & bag)
+{
+	while (letters.size() < 7 && !bag.empty()) {
+		letters.push_back(bag.getNext());
+	}
+}
+
+void Player::removeAfterPlacement(Placement placement)
+{
+	std::string s = placement.getLetters();
+	int numberOfFreeTiles = std::count_if(s.begin(), s.end(), [](const char c) {return std::islower(c);});
+	auto itr = std::remove_if(letters.begin(), letters.end(),
+		[&](const Letter & l) {
+			if (l.getLetter() == ' ') {
+				if (numberOfFreeTiles > 0) {
+					--numberOfFreeTiles;
+					return true;
+				}
+			}
+			else {
+				int exists = std::count(s.begin(), s.end(), l.getLetter());
+				if (exists > 0) {
+					int loc = s.find_first_of(l.getLetter());
+					s.erase(loc, 1);
+					return true;
+				}
+			}
+			return false;
+		}
+	);
+	letters.erase(itr, letters.end());
+}
+
+void Player::writeLetters(std::ostream & os)
+{
+	for (Letter l : letters) {
+		os << l.getLetter() << " ";
+	}
+	os << std::endl;
+}
+
+bool Player::done() const
+{
+	return letters.empty();
+}
+
+int Player::tallyRemainingLetters() const
+{
+	int tally = 0;
+	for (Letter l : letters) {
+		tally += l.getValue();
+	}
+	return tally;
 }
 
 void Player::solve(Board& board, TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
@@ -104,7 +174,7 @@ void Player::solve(Board& board, TrieTracker& tracker, SeenTrie::SeenTrie * seen
 			// Bingo
 			realScore += 50;
 		}
-		results.push_back(Placement(rStart, cStart, type, curWord, realScore));
+		results.push_back(Placement(rStart, cStart, type, curLetters, realScore));
 		//std::cout << curWord << "\t" << realScore << std::endl;
 	}
 	if (r >= board.WIDTH || c >= board.HEIGHT || r < 0 || c < 0) {
@@ -112,7 +182,7 @@ void Player::solve(Board& board, TrieTracker& tracker, SeenTrie::SeenTrie * seen
 		return;
 	}
 	if (!letters.empty()) {
-		char curChar = board.getLetter(r, c);
+		char curChar = std::toupper(board.getLetter(r, c));
 		if (curChar == 0) {
 			// Current location empty
 
@@ -170,7 +240,7 @@ int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, c
 			curCharScore = board.getTileScore(tile, r, c, multiplier);
 		}
 		else {
-			curChar = board.getLetter(rCur, cCur);
+			curChar = std::toupper(board.getLetter(rCur, cCur));
 			curCharScore = board.getLetterScore(curChar);
 		}
 		if (curChar == 0) {
