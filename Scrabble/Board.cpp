@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "EnumUtils.h"
 #include <utility>
+#include <cctype>
 
 
 Board::Board()
@@ -77,6 +78,10 @@ bool Board::place(Placement placement)
 
 int Board::getLetterScore(char tile)
 {
+	if (std::islower(tile)) {
+		// Wild card tiles don't have points
+		return 0;
+	}
 	return letterBag->getLetterScore(tile);
 }
 
@@ -176,6 +181,12 @@ std::istream & operator>>(std::istream & is, Board & board)
 	for (int i = 0; i < board.WIDTH; ++i) {
 		for (int j = 0; j < board.HEIGHT; ++j) {
 			is >> c;
+			if (c == '.') {
+				c = 0;
+			}
+			else {
+				board.isEmpty = false;
+			}
 			c = (c == '.') ? 0 : c;
 			board.setLetter(i, j, c);
 		}

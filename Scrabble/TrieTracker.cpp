@@ -8,10 +8,13 @@ TrieTracker::TrieTracker(Trie * trie)
 	curState = root;
 }
 
-TrieTracker::TrieTracker(const TrieTracker & tracker)
+TrieTracker::TrieTracker(const TrieTracker & tracker, bool reset)
 {
 	root = tracker.root;
 	curState = tracker.curState;
+	if (reset) {
+		resetState();
+	}
 }
 
 TrieTracker::~TrieTracker()

@@ -5,7 +5,7 @@ class TrieTracker
 {
 public:
 	TrieTracker(Trie * trie);
-	TrieTracker(const TrieTracker& tracker);
+	TrieTracker(const TrieTracker& tracker, bool reset);
 	~TrieTracker();
 
 	void resetState();

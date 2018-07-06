@@ -31,13 +31,13 @@ Placement Player::solve(Board& board, TrieTracker& tracker, PlacementStrategy st
 		std::function<int(const Placement& x, const Placement&  y)> > solutions(placementCmp);
 
 
-	/*letters.push_back(Letter('S', board.getLetterScore('S')));
-	letters.push_back(Letter('O', board.getLetterScore('O')));
-	letters.push_back(Letter('B', board.getLetterScore('B')));
+	/*letters.push_back(Letter('P', board.getLetterScore('P')));
+	letters.push_back(Letter('L', board.getLetterScore('L')));
 	letters.push_back(Letter('I', board.getLetterScore('I')));
-	letters.push_back(Letter('A', board.getLetterScore('A')));
-	letters.push_back(Letter(' ', board.getLetterScore(' ')));
-	letters.push_back(Letter(' ', board.getLetterScore(' ')));*/
+	letters.push_back(Letter('O', board.getLetterScore('O')));
+	letters.push_back(Letter('T', board.getLetterScore('T')));
+	letters.push_back(Letter('R', board.getLetterScore('R')));
+	letters.push_back(Letter('O', board.getLetterScore('O')));*/
 
 	/*letters.push_back(Letter('I', board.getLetterScore('I')));
 	letters.push_back(Letter('A', board.getLetterScore('A')));
@@ -47,10 +47,16 @@ Placement Player::solve(Board& board, TrieTracker& tracker, PlacementStrategy st
 	letters.push_back(Letter('O', board.getLetterScore('O')));
 	letters.push_back(Letter('N', board.getLetterScore('N')));*/
 
+	auto searchSpace = buildSearchSpace(board);
 	if (board.empty()) {
 		seen->reset();
-		solve(board, tracker, seen, board.WIDTH / 2, board.HEIGHT / 2, board.WIDTH / 2, board.HEIGHT / 2,
-			PlacementType::CROSS, results, curWord, curLetters, true, 1, 0, 0);
+		for (std::pair<int, int> p : searchSpace) {
+			int r = p.first;
+			int c = p.second;
+			seen->reset();
+			solve(board, tracker, seen, r, c, r, c, PlacementType::DOWN, results, curWord, curLetters, true, 1, 0, 0);
+		}
+		
 	}
 	else {
 		int lastSize = 0;
@@ -75,20 +81,13 @@ Placement Player::solve(Board& board, TrieTracker& tracker, PlacementStrategy st
 			}
 		}
 		//tracker.resetState();
-		//solve(board, tracker, seen, 2, 10, 2, 10, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
+		//solve(board, tracker, seen, 1, 0, 1, 0, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
 	}
 	delete seen;
 
 	for (auto r : results) {
 		solutions.push(r);
 	}
-	/*int c0 = 0;
-	while (c0 < 25 && !solutions.empty())
-	{
-		std::cout << solutions.top() << std::endl;
-		solutions.pop();
-		c0++;
-	}*/
 	Placement finalSolution;
 	switch (strategy)
 	{
@@ -170,50 +169,53 @@ void Player::solve(Board& board, TrieTracker& tracker, SeenTrie::SeenTrie * seen
 	
 	if (tracker.isCurStateWord() && legalPlacement && board.getLetter(r, c) == 0) {
 		int realScore = score * multiplier + perpendicularWordScores;
-		if (letters.empty()) {
+		if (curLetters.size() == 7) {
 			// Bingo
 			realScore += 50;
 		}
 		results.push_back(Placement(rStart, cStart, type, curLetters, realScore));
-		//std::cout << curWord << "\t" << realScore << std::endl;
 	}
 	if (r >= board.WIDTH || c >= board.HEIGHT || r < 0 || c < 0) {
+		// Out of bound, base case
 		tracker.prev();
 		return;
 	}
-	if (!letters.empty()) {
-		char curChar = std::toupper(board.getLetter(r, c));
-		if (curChar == 0) {
-			// Current location empty
-
-			int size = letters.size();
-			for (int i = 0; i < size; ++i) {
-				Letter newLetter = letters.front();
-				letters.pop_front();
-				char newChar = newLetter.getLetter();
-				if (newChar == ' ') {
-					for (char spaceSub = 'a'; spaceSub <= 'z'; ++spaceSub) {
-						explore(board, tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
-							multiplier, perpendicularWordScores, score, rinc, cinc, Letter(spaceSub, board.getLetterScore(' ')));
-					}
-				}
-				else {
+	char curChar = board.getLetter(r, c);
+	if (!letters.empty() && curChar == 0) {
+		// Current location empty and have letters to use
+		int size = letters.size();
+		for (int i = 0; i < size; ++i) {
+			Letter newLetter = letters.front();
+			letters.pop_front();
+			char newChar = newLetter.getLetter();
+			if (newChar == ' ') {
+				// Explore wild card tile substitutions
+				for (char spaceSub = 'a'; spaceSub <= 'z'; ++spaceSub) {
 					explore(board, tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
-						multiplier, perpendicularWordScores, score, rinc, cinc, newLetter);
+						multiplier, perpendicularWordScores, score, rinc, cinc, Letter(spaceSub, board.getLetterScore(' ')));
 				}
+			}
+			else {
+				explore(board, tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+					multiplier, perpendicularWordScores, score, rinc, cinc, newLetter);
+			}
 				
-				letters.push_back(newLetter);
-			}
-
+			letters.push_back(newLetter);
 		}
-		else {
-			if (tracker.next(curChar)) {
-				int scoreToAdd = board.getLetterScore(curChar);
-				curWord.push_back(curChar);
-				solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, true,
-					multiplier, perpendicularWordScores, score + scoreToAdd);
-				curWord.pop_back();
-			}
+	}
+	else if (letters.empty() && curChar == 0) {
+		// Current location empty and no more letters to use
+		// Search for this location and orientation is done.
+		// Carry on
+	}
+	else {
+		// Current location not empty, needs to keep searching
+		if (tracker.next(std::toupper(curChar))) {
+			int scoreToAdd = board.getLetterScore(curChar);
+			curWord.push_back(curChar);
+			solve(board, tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, true,
+				multiplier, perpendicularWordScores, score + scoreToAdd);
+			curWord.pop_back();
 		}
 	}
 	tracker.prev();
@@ -230,24 +232,28 @@ int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, c
 	int rCur = rStart, cCur = cStart;
 	int curCharScore = 0;
 	char curChar = board.getLetter(rCur, cCur);
-	char nextChar;
 	int count = 0;
+	// Create a fresh tracker to search if the perpendicular word is valid
+	TrieTracker * perpendicularTracker = new TrieTracker(tracker, true);
 	while (1) {
-		nextChar = board.getLetter(rCur + rinc, cCur + cinc);
 		
 		if (rCur == r && cCur == c) {
-			curChar = std::toupper(tile.getLetter());
+			// At the location of intersection
+			curChar = tile.getLetter();
 			curCharScore = board.getTileScore(tile, r, c, multiplier);
 		}
 		else {
-			curChar = std::toupper(board.getLetter(rCur, cCur));
+			// Not at the location of intersection
+			curChar = board.getLetter(rCur, cCur);
 			curCharScore = board.getLetterScore(curChar);
 		}
 		if (curChar == 0) {
+			// If reached end or out of bound
 			break;
 		}
 		++count;
-		if (!tracker.next(curChar)) {
+		if (!perpendicularTracker->next(std::toupper(curChar))) {
+			// Perpendicular word not valid
 			return -1;
 		}
 		score += curCharScore;
@@ -255,9 +261,13 @@ int Player::scorePlacedTile(Board & board, TrieTracker & tracker, const int r, c
 		cCur += cinc;
 	}
 	if (count == 1) {
+		// There is no valid intersecting words already placed.
 		return 0;
 	}
-	return tracker.isCurStateWord() ? score * multiplier : -1;
+	int perpendicularScore = perpendicularTracker->isCurStateWord() ? score * multiplier : -1;
+	delete perpendicularTracker;
+
+	return perpendicularScore;
 }
 
 void Player::findStartIndices(Board & board, const int r, const int c, int & rStart, int & cStart, const PlacementType type)
@@ -279,11 +289,8 @@ void Player::explore(Board & board, TrieTracker & tracker, SeenTrie::SeenTrie * 
 {
 	char newChar = newLetter.getLetter();
 	// Score the newly placed tile
-	TrieTracker * perpendicularTracker = new TrieTracker(tracker);
-	perpendicularTracker->resetState();
-	int perpendicularWordScore = scorePlacedTile(board, *perpendicularTracker, r, c,
+	int perpendicularWordScore = scorePlacedTile(board, tracker, r, c,
 		EnumUtils::getOther(type), newLetter);
-	delete perpendicularTracker;
 	if (perpendicularWordScore < 0) {
 		return;
 	}
@@ -307,4 +314,17 @@ void Player::explore(Board & board, TrieTracker & tracker, SeenTrie::SeenTrie * 
 	}
 	curLetters.pop_back();
 	curWord.pop_back();
+}
+
+std::list<std::pair<int, int>> Player::buildSearchSpace(Board & board)
+{
+	std::list<std::pair<int, int>> searchSpace;
+
+	if (board.empty()) {
+		for (int i = 1; i < 8; ++i) {
+			searchSpace.push_back(std::make_pair(i, Board::HEIGHT / 2));
+		}
+	}
+
+	return searchSpace;
 }

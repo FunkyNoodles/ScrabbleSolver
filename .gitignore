@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 Scrabble/dictionary.txt
 ScrabbleRuntime/memory_leak_report.txt
+ScrabbleRuntime/InputTestBoard.txt
