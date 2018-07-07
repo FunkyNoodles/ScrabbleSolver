@@ -3,8 +3,9 @@
 #include <random>
 
 
-LetterBag::LetterBag()
+LetterBag::LetterBag(unsigned int seed)
 {
+	this->seed = seed;
 	initResources();
 	populateBag();
 }
@@ -100,15 +101,14 @@ void LetterBag::populateBag()
 {
 	std::random_device randomDev;
 	std::mt19937 generator(randomDev());
-	generator.seed(200);
+	generator.seed(this->seed);
 	for (auto const& letter : letterCounts) {
 		for (int i = 0; i < letter.second; ++i) {
 			bag.push_back(letter.first);
 		}
 	}
-	std::shuffle(bag.begin(), bag.end(), generator);
-	std::shuffle(bag.begin(), bag.end(), generator);
-	std::shuffle(bag.begin(), bag.end(), generator);
-	std::shuffle(bag.begin(), bag.end(), generator);
-	std::shuffle(bag.begin(), bag.end(), generator);
+	for (int i = 0; i < SHUFFLE_TIMES; ++i) {
+		// Shuffle a few times to spread out letters more.
+		std::shuffle(bag.begin(), bag.end(), generator);
+	}
 }

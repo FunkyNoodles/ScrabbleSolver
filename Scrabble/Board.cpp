@@ -4,9 +4,9 @@
 #include <cctype>
 
 
-Board::Board()
+Board::Board(LetterBag * letterBag)
 {
-	letterBag = new LetterBag();
+	this->letterBag = letterBag;
 	populateQuarterBoardTypes();
 	board = new char *[HEIGHT];
 	for (int i = 0; i < HEIGHT; ++i) {
@@ -25,10 +25,9 @@ Board::~Board()
 		delete[] board[i];
 	}
 	delete[] board;
-	delete letterBag;
 }
 
-BoardType Board::getBoardType(const int r, const int c)
+BoardType Board::getBoardType(const int r, const int c) const
 {
 	int reducedR = reduceIndex(r);
 	int reducedC = reduceIndex(c);
@@ -76,16 +75,16 @@ bool Board::place(Placement placement)
 	return false;
 }
 
-int Board::getLetterScore(char tile)
+int Board::getLetterScore(char tile) const
 {
-	if (std::islower(tile)) {
-		// Wild card tiles don't have points
+	if (std::islower(tile) || tile == 0) {
+		// Wild card tiles and empty places don't have points
 		return 0;
 	}
 	return letterBag->getLetterScore(tile);
 }
 
-int Board::getTileScore(Letter letter, const int r, const int c, int & multiplier)
+int Board::getTileScore(const Letter letter, const int r, const int c, int & multiplier) const
 {
 	int letterScore = letter.getValue();
 	switch (getBoardType(r, c)) {
@@ -148,7 +147,7 @@ void Board::populateQuarterBoardTypes()
 
 }
 
-int Board::reduceIndex(const int i)
+int Board::reduceIndex(const int i) const
 {
 	if (i <= WIDTH / 2) {
 		return i;

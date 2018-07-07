@@ -23,16 +23,16 @@ class Board
 public:
 	const static int WIDTH = 15, HEIGHT = 15;
 
-	Board();
+	Board(LetterBag * letterBag);
 	~Board();
 
-	BoardType getBoardType(const int r, const int c);
+	BoardType getBoardType(const int r, const int c) const;
 	char getLetter(const int r, const int c) const;
 	void setLetter(const int r, const int c, const char ch);
 	bool place(Placement placement);
 	bool empty() const { return isEmpty; }
-	int getLetterScore(char tile);
-	int getTileScore(Letter letter, const int r, const int c, int& multiplier);
+	int getLetterScore(char tile) const;
+	int getTileScore(const Letter letter, const int r, const int c, int& multiplier) const;
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 	friend std::istream& operator>>(std::istream& is, Board& board);
@@ -45,7 +45,7 @@ private:
 	LetterBag * letterBag;
 
 	void populateQuarterBoardTypes();
-	int reduceIndex(const int i);
+	int reduceIndex(const int i) const;
 	
 };
 

@@ -14,7 +14,7 @@
 #include <fstream>
 
 int main() {
-	LetterBag letterBag;
+	LetterBag letterBag(200);
 	//Dictionary dictionary;
 	Trie trie;
 	std::cout << "Loading dictionary..." << std::endl;
@@ -25,19 +25,19 @@ int main() {
 		std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / 1000.0 << " s"<< std::endl;
 
 
-	Player player1, player2;
+	Board b(&letterBag);
+	Player player1(&b), player2(&b);
 	bool player1Pass = false, player2Pass = false;
 	int player1Score = 0, player2Score = 0;
 	TrieTracker tracker1(&trie);
 	TrieTracker tracker2(&trie);
-	Board b;
 
-	/*std::ifstream inputTestBoard;
-	inputTestBoard.open("InputTestBoard.txt");
-	if (inputTestBoard.is_open()) {
-		inputTestBoard >> b;
-	}
-	inputTestBoard.close();*/
+	//std::ifstream inputTestBoard;
+	//inputTestBoard.open("InputTestBoard.txt");
+	//if (inputTestBoard.is_open()) {
+	//	inputTestBoard >> b;
+	//}
+	//inputTestBoard.close();
 
 	std::cout << b << std::endl;
 
@@ -50,11 +50,11 @@ int main() {
 		player1Pass = false;
 		player2Pass = false;
 
-		tracker1.resetState();
-		Placement sol1 = player1.solve(b, tracker1, PlacementStrategy::BEST);
+		Placement sol1 = player1.solve(tracker1, PlacementStrategy::GREEDY);
 		player1.writeLetters(std::cout);
 		player1.writeLetters(testBoardLog);
 		std::cout << sol1.getScore() << std::endl;
+		testBoardLog << sol1.getScore() << std::endl;
 		player1.removeAfterPlacement(sol1);
 		player1.draw(letterBag);
 		if (sol1.getScore() >= 0) {
@@ -71,11 +71,11 @@ int main() {
 		std::cout << b;
 		//std::cin.get();
 
-		tracker2.resetState();
-		Placement sol2 = player2.solve(b, tracker2, PlacementStrategy::BEST);
+		Placement sol2 = player2.solve(tracker2, PlacementStrategy::GREEDY);
 		player2.writeLetters(std::cout);
 		player2.writeLetters(testBoardLog);
 		std::cout << sol2.getScore() << std::endl;
+		testBoardLog << sol2.getScore() << std::endl;
 		player2.removeAfterPlacement(sol2);
 		player2.draw(letterBag);
 		if (sol2.getScore() >= 0) {
@@ -100,11 +100,6 @@ int main() {
 	player2Score += player1.tallyRemainingLetters();
 	std::cout << player1Score << ' ' << player2Score << std::endl;
 
-	/*begin = std::chrono::steady_clock::now();
-	Placement ps = player1.solve(b, tracker1, PlacementStrategy::BEST);
-	end = std::chrono::steady_clock::now();
-	std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << std::endl;
-	b.place(ps);*/
 	std::cout << b;
 	std::cout << "Done" << std::endl;
 	return 0;
