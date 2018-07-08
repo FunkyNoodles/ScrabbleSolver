@@ -7,7 +7,8 @@
 #include <cctype>
 #include <algorithm>
 #include <string>
-
+#include <boost/asio/thread_pool.hpp>
+#include <boost/lockfree/stack.hpp>
 
 Player::Player(Board * board)
 {
@@ -20,7 +21,8 @@ Player::~Player()
 
 Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
 {
-	std::vector<Placement> results;
+	LockFreeStack<Placement> results(1);
+
 	std::string curWord;
 	std::string curLetters;
 	SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
@@ -42,10 +44,8 @@ Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
 			seen->reset();
 			solve(tracker, seen, r, c, r, c, PlacementType::DOWN, results, curWord, curLetters, true, 1, 0, 0);
 		}
-		
 	}
 	else {
-		int lastSize = 0;
 		for (int i = 0; i < Board::HEIGHT; ++i) {
 			for (int j = 0; j < Board::WIDTH; ++j) {
 				auto begin = std::chrono::steady_clock::now();
@@ -63,16 +63,18 @@ Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
 				auto end = std::chrono::steady_clock::now();
 				//std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
 				//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
-				lastSize = results.size();
 			}
 		}
 		//solve(tracker, seen, 0, 8, 0, 8, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
 	}
 	delete seen;
 
-	for (auto r : results) {
+	while (!results.empty()) {
+		Placement r;
+		results.pop(r);
 		solutions.push(r);
 	}
+
 	Placement finalSolution;
 	switch (strategy)
 	{
@@ -125,6 +127,7 @@ void Player::removeAfterPlacement(Placement placement)
 
 void Player::populateLetters(std::string initialLetters)
 {
+	letters.clear();
 	for (char c : initialLetters) {
 		letters.push_back(Letter(c, board->getLetterScore(c)));
 	}
@@ -133,7 +136,7 @@ void Player::populateLetters(std::string initialLetters)
 void Player::writeLetters(std::ostream & os)
 {
 	for (Letter l : letters) {
-		os << l.getLetter() << " ";
+		os << l.getLetter();
 	}
 	os << std::endl;
 }
@@ -153,7 +156,7 @@ int Player::tallyRemainingLetters() const
 }
 
 void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-	const PlacementType type, std::vector<Placement> & results, std::string & curWord,
+	const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord,
 	std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score)
 {
 	int rinc, cinc;
@@ -165,7 +168,7 @@ void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r,
 			// Bingo
 			realScore += 50;
 		}
-		results.push_back(Placement(rStart, cStart, type, curLetters, realScore));
+		results.push(Placement(rStart, cStart, type, curLetters, realScore));
 	}
 	if (r >= Board::WIDTH || c >= Board::HEIGHT || r < 0 || c < 0) {
 		// Out of bound, base case
@@ -276,7 +279,7 @@ void Player::findStartIndices(const int r, const int c, int & rStart, int & cSta
 }
 
 void Player::explore(TrieTracker & tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-	const PlacementType type, std::vector<Placement>& results, std::string & curWord, std::string & curLetters,
+	const PlacementType type, LockFreeStack<Placement>& results, std::string & curWord, std::string & curLetters,
 	bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter)
 {
 	char newChar = newLetter.getLetter();

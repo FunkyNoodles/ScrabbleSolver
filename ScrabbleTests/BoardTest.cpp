@@ -12,7 +12,8 @@ protected:
 };
 
 TEST_F(BoardTest, getBoardTypeCorrect) {
-	Board board;
+	LetterBag letterBag(0);
+	Board board(&letterBag);
 	EXPECT_EQ(board.getBoardType(7, 7), BoardType::DOUBLE_WORD);
 	EXPECT_EQ(board.getBoardType(9, 7), BoardType::NONE);
 	EXPECT_EQ(board.getBoardType(12, 12), BoardType::DOUBLE_WORD);
@@ -21,9 +22,10 @@ TEST_F(BoardTest, getBoardTypeCorrect) {
 }
 
 TEST_F(BoardTest, ioCorrect) {
+	LetterBag letterBag(0);
 	Placement p0(0, 0, PlacementType::CROSS, "WEPT", 0);
 	Placement p1(0, 3, PlacementType::DOWN, "AP", 0);
-	Board board;
+	Board board(&letterBag);
 	board.place(p0);
 	board.place(p1);
 	std::ofstream oFile;
@@ -32,7 +34,7 @@ TEST_F(BoardTest, ioCorrect) {
 	oFile.close();
 	std::ifstream iFile;
 	iFile.open("test.txt");
-	Board boardIn;
+	Board boardIn(&letterBag);
 	iFile >> boardIn;
 	iFile.close();
 	EXPECT_EQ(board, boardIn);

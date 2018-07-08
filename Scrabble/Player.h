@@ -12,6 +12,10 @@
 #include "PlacementStrategy.h"
 #include "TrieTracker.h"
 #include "LetterBag.h"
+#include <boost/lockfree/stack.hpp>
+
+template<class T>
+using LockFreeStack = boost::lockfree::stack<T>;
 
 class Player
 {
@@ -32,14 +36,14 @@ private:
 	Board * board;
 
 	void solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-		const PlacementType type, std::vector<Placement> & results, std::string & curWord, std::string & curLetters,
+		const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord, std::string & curLetters,
 		bool legalPlacement, int multiplier, int perpendicularWordScores, int score);
 	int scorePlacedTile(TrieTracker& tracker, const int r, const int c,
 		const PlacementType type, Letter tile);
 	void findStartIndices(const int r, const int c, int& rStart, int & cStart,
 		const PlacementType type);
 	void explore(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-		const PlacementType type, std::vector<Placement> & results, std::string & curWord, std::string & curLetters,
+		const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord, std::string & curLetters,
 		bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter);
 	std::list<std::pair<int, int> > buildSearchSpace();
 };

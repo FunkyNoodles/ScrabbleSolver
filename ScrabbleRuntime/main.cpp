@@ -1,5 +1,4 @@
 #include "../Scrabble/LetterBag.h"
-#include "../Scrabble/Dictionary.h"
 #include "../Scrabble/Trie.h"
 #include "../Scrabble/Player.h"
 #include "../Scrabble/Board.h"

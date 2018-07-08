@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-const int SIZE = 26;
+const int ALPHABET_SIZE = 26;
 const int OFFSET = 65;
 
 class TrieNode {
@@ -11,9 +11,9 @@ public:
 	bool isWord = false;
 
 	TrieNode(TrieNode * parent) {
-		children = new TrieNode*[SIZE];
+		children = new TrieNode*[ALPHABET_SIZE];
 		this->parent = parent;
-		for (int i = 0; i < SIZE; ++i) {
+		for (int i = 0; i < ALPHABET_SIZE; ++i) {
 			children[i] = nullptr;
 		}
 	}

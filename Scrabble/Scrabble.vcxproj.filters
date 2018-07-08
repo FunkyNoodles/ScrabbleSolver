@@ -73,5 +73,8 @@
     <ClInclude Include="PlacementStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ctpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
