@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "EnumUtils.h"
+#include <ctpl.h>
 #include <unordered_set>
 #include <queue>
 #include <functional>
@@ -7,8 +8,7 @@
 #include <cctype>
 #include <algorithm>
 #include <string>
-#include <boost/asio/thread_pool.hpp>
-#include <boost/lockfree/stack.hpp>
+#include <future>
 
 Player::Player(Board * board)
 {
@@ -19,55 +19,75 @@ Player::~Player()
 {
 }
 
-Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
+Placement Player::solve(Trie & trie, PlacementStrategy strategy)
 {
-	LockFreeStack<Placement> results(1);
+	ctpl::thread_pool pool(8, 500);
+	ThreadSafeVector<Placement> results;
 
-	std::string curWord;
-	std::string curLetters;
-	SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+	auto searchSpace = buildSearchSpace();
+
+	if (board->empty()) {
+		for (std::pair<int, int> p : searchSpace) {
+			int r = p.first;
+			int c = p.second;
+			pool.push(
+				[&trie, this, r, c, &results](int id) {
+				TrieTracker tracker(trie);
+				std::list<Letter> threadIndependentLetters(letters);
+				std::string curWord;
+				std::string curLetters;
+				SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+				solve(tracker, seen, r, c, r, c, PlacementType::DOWN, results, threadIndependentLetters, curWord, curLetters, true, 1, 0, 0);
+				delete seen;
+			});
+		}
+	}
+	else {
+		for (int r = 0; r < Board::HEIGHT; ++r) {
+			for (int c = 0; c < Board::WIDTH; ++c) {
+				if (board->getLetter(r - 1, c) == 0) {
+					pool.push(
+						[&trie, this, r, c, &results](int id) {
+
+						TrieTracker tracker(trie);
+						std::list<Letter> threadIndependentLetters;
+						for (auto l : letters) {
+							threadIndependentLetters.push_back(l);
+						}
+						std::string curWord;
+						std::string curLetters;
+						SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+						solve(tracker, seen, r, c, r, c, PlacementType::DOWN, results, threadIndependentLetters, curWord, curLetters, false, 1, 0, 0);
+						delete seen;
+					});
+				}
+
+				if (board->getLetter(r, c - 1) == 0) {
+					pool.push(
+						[&trie, this, r, c, &results](int id) {
+						
+						TrieTracker tracker(trie);
+						std::list<Letter> threadIndependentLetters;
+						for (auto l : letters) {
+							threadIndependentLetters.push_back(l);
+						}
+						std::string curWord;
+						std::string curLetters;
+						SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+						solve(tracker, seen, r, c, r, c, PlacementType::CROSS, results, threadIndependentLetters, curWord, curLetters, false, 1, 0, 0);
+						delete seen;
+					});
+				}
+			}
+		}
+	}
+	pool.stop(true);
 
 	auto placementCmp = [](const Placement& lhs, const Placement& rhs) {
 		return lhs.getScore() < rhs.getScore();
 	};
 	std::priority_queue<Placement, std::vector<Placement>,
 		std::function<int(const Placement& x, const Placement&  y)> > solutions(placementCmp);
-
-	auto searchSpace = buildSearchSpace();
-	tracker.resetState();
-
-	if (board->empty()) {
-		seen->reset();
-		for (std::pair<int, int> p : searchSpace) {
-			int r = p.first;
-			int c = p.second;
-			seen->reset();
-			solve(tracker, seen, r, c, r, c, PlacementType::DOWN, results, curWord, curLetters, true, 1, 0, 0);
-		}
-	}
-	else {
-		for (int i = 0; i < Board::HEIGHT; ++i) {
-			for (int j = 0; j < Board::WIDTH; ++j) {
-				auto begin = std::chrono::steady_clock::now();
-				if (board->getLetter(i - 1, j) == 0) {
-					tracker.resetState();
-					seen->reset();
-					solve(tracker, seen, i, j, i, j, PlacementType::DOWN, results, curWord, curLetters, false, 1, 0, 0);
-				}
-
-				if (board->getLetter(i, j - 1) == 0) {
-					tracker.resetState();
-					seen->reset();
-					solve(tracker, seen, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
-				}
-				auto end = std::chrono::steady_clock::now();
-				//std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
-				//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
-			}
-		}
-		//solve(tracker, seen, 0, 8, 0, 8, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
-	}
-	delete seen;
 
 	while (!results.empty()) {
 		Placement r;
@@ -155,8 +175,20 @@ int Player::tallyRemainingLetters() const
 	return tally;
 }
 
+void Player::multithreadedSolve(int id, Trie & trie, const int r, const int c, ThreadSafeVector<Placement> & results,
+	PlacementType placementType)
+{
+	TrieTracker tracker(trie);
+	std::list<Letter> threadIndependentLetters(letters);
+	std::string curWord;
+	std::string curLetters;
+	SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+	solve(tracker, seen, r, c, r, c, placementType, results, threadIndependentLetters, curWord, curLetters, true, 1, 0, 0);
+	delete seen;
+}
+
 void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-	const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord,
+	const PlacementType type, ThreadSafeVector<Placement> & results, std::list<Letter> & letters, std::string & curWord,
 	std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score)
 {
 	int rinc, cinc;
@@ -167,6 +199,9 @@ void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r,
 		if (curLetters.size() == 7) {
 			// Bingo
 			realScore += 50;
+		}
+		if (realScore == 30) {
+			//std::cout << "Got the result" << std::endl;
 		}
 		results.push(Placement(rStart, cStart, type, curLetters, realScore));
 	}
@@ -186,12 +221,12 @@ void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r,
 			if (newChar == ' ') {
 				// Explore wild card tile substitutions
 				for (char spaceSub = 'a'; spaceSub <= 'z'; ++spaceSub) {
-					explore(tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+					explore(tracker, seen, r, c, rStart, cStart, type, results, letters, curWord, curLetters, legalPlacement,
 						multiplier, perpendicularWordScores, score, rinc, cinc, Letter(spaceSub, board->getLetterScore(' ')));
 				}
 			}
 			else {
-				explore(tracker, seen, r, c, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+				explore(tracker, seen, r, c, rStart, cStart, type, results, letters, curWord, curLetters, legalPlacement,
 					multiplier, perpendicularWordScores, score, rinc, cinc, newLetter);
 			}
 				
@@ -208,7 +243,7 @@ void Player::solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r,
 		if (tracker.next(std::toupper(curChar))) {
 			int scoreToAdd = board->getLetterScore(curChar);
 			curWord.push_back(curChar);
-			solve(tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, true,
+			solve(tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, letters, curWord, curLetters, true,
 				multiplier, perpendicularWordScores, score + scoreToAdd);
 			curWord.pop_back();
 		}
@@ -279,8 +314,9 @@ void Player::findStartIndices(const int r, const int c, int & rStart, int & cSta
 }
 
 void Player::explore(TrieTracker & tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-	const PlacementType type, LockFreeStack<Placement>& results, std::string & curWord, std::string & curLetters,
-	bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter)
+	const PlacementType type, ThreadSafeVector<Placement>& results, std::list<Letter> & letters, std::string & curWord,
+	std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores,
+	int score, int rinc, int cinc, Letter newLetter)
 {
 	char newChar = newLetter.getLetter();
 	// Score the newly placed tile
@@ -302,7 +338,7 @@ void Player::explore(TrieTracker & tracker, SeenTrie::SeenTrie * seen, const int
 	//if (tracker.next(newChar)) {
 		seen->insert(newChar);
 		seen->next(newChar);
-		solve(tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, curWord, curLetters, legalPlacement,
+		solve(tracker, seen, r + rinc, c + cinc, rStart, cStart, type, results, letters, curWord, curLetters, legalPlacement,
 			newMultiplier, perpendicularWordScores + perpendicularWordScore, score + scoreToAdd);
 		seen->prev();
 	}

@@ -12,10 +12,8 @@
 #include "PlacementStrategy.h"
 #include "TrieTracker.h"
 #include "LetterBag.h"
-#include <boost/lockfree/stack.hpp>
+#include "ThreadSafeVector.cpp"
 
-template<class T>
-using LockFreeStack = boost::lockfree::stack<T>;
 
 class Player
 {
@@ -23,7 +21,7 @@ public:
 	Player(Board * board);
 	~Player();
 
-	Placement solve(TrieTracker& tracker, PlacementStrategy strategy);
+	Placement solve(Trie & trie, PlacementStrategy strategy);
 	void draw(LetterBag & bag);
 	void removeAfterPlacement(Placement placement);
 	void populateLetters(std::string initialLetters);
@@ -35,16 +33,18 @@ private:
 	std::list<Letter> letters;
 	Board * board;
 
+	void multithreadedSolve(int id, Trie & trie, const int r, const int c,
+		ThreadSafeVector<Placement> & results, PlacementType placementType);
 	void solve(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-		const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord, std::string & curLetters,
-		bool legalPlacement, int multiplier, int perpendicularWordScores, int score);
+		const PlacementType type, ThreadSafeVector<Placement> & results, std::list<Letter> & letters, std::string & curWord,
+		std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score);
 	int scorePlacedTile(TrieTracker& tracker, const int r, const int c,
 		const PlacementType type, Letter tile);
 	void findStartIndices(const int r, const int c, int& rStart, int & cStart,
 		const PlacementType type);
 	void explore(TrieTracker& tracker, SeenTrie::SeenTrie * seen, const int r, const int c, const int rStart, const int cStart,
-		const PlacementType type, LockFreeStack<Placement> & results, std::string & curWord, std::string & curLetters,
-		bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter);
+		const PlacementType type, ThreadSafeVector<Placement> & results, std::list<Letter> & letters, std::string & curWord,
+		std::string & curLetters, bool legalPlacement, int multiplier, int perpendicularWordScores, int score, int rinc, int cinc, Letter newLetter);
 	std::list<std::pair<int, int> > buildSearchSpace();
 };
 

@@ -2,9 +2,9 @@
 
 
 
-TrieTracker::TrieTracker(Trie * trie)
+TrieTracker::TrieTracker(Trie & trie)
 {
-	root = trie->getRoot();
+	root = trie.getRoot();
 	curState = root;
 }
 

@@ -38,7 +38,6 @@ TEST_F(PlayerBenchmark, solveCorrect) {
 		for (int j = 0; j < iterations; ++j) {
 			Board board(&letterBag);
 			Player player(&board);
-			TrieTracker tracker(&trie);
 
 			std::string fileName = "../../ScrabbleTests/PlayerBenchmark/Board" + std::to_string(i) + ".txt";
 			std::string initialLetters, expectedScoreString;
@@ -57,13 +56,15 @@ TEST_F(PlayerBenchmark, solveCorrect) {
 
 			player.populateLetters(initialLetters);
 			auto begin = std::chrono::steady_clock::now();
-			Placement result = player.solve(tracker, PlacementStrategy::GREEDY);
+			Placement result = player.solve(trie, PlacementStrategy::GREEDY);
 			auto end = std::chrono::steady_clock::now();
 			timeSum += std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+			if (result.getScore() == 40) {
+				std::cout << "wrong" << std::endl;
+			}
 			EXPECT_EQ(result.getScore(), expectedScore);
 		}
-		benchmarkResults << "Test " << i << " took " <<
-			timeSum / 1000.0 / iterations << " ms" << std::endl;
+		benchmarkResults << "Test " << i << " took " << timeSum / 1000.0 / iterations << " ms" << std::endl;
 	}
 	benchmarkResults.close();
 }

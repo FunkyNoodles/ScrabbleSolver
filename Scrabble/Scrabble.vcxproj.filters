@@ -38,6 +38,9 @@
     <ClCompile Include="SeenTrie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadSafeVector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LetterBag.h">
@@ -73,7 +76,7 @@
     <ClInclude Include="PlacementStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ctpl.h">
+    <ClInclude Include="ThreadSafeVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
