@@ -45,6 +45,7 @@
     <ClCompile Include="BoardTest.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PlayerBenchmark.cpp" />
     <ClCompile Include="TrieTest.cpp" />
   </ItemGroup>
   <ItemGroup>

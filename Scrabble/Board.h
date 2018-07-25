@@ -46,6 +46,5 @@ private:
 
 	void populateQuarterBoardTypes();
 	int reduceIndex(const int i) const;
-	
-};
 
+};

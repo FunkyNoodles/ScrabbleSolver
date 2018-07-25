@@ -48,7 +48,6 @@ Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
 		int lastSize = 0;
 		for (int i = 0; i < Board::HEIGHT; ++i) {
 			for (int j = 0; j < Board::WIDTH; ++j) {
-				auto begin = std::chrono::steady_clock::now();
 				if (board->getLetter(i - 1, j) == 0) {
 					tracker.resetState();
 					seen->reset();
@@ -60,7 +59,6 @@ Placement Player::solve(TrieTracker& tracker, PlacementStrategy strategy)
 					seen->reset();
 					solve(tracker, seen, i, j, i, j, PlacementType::CROSS, results, curWord, curLetters, false, 1, 0, 0);
 				}
-				auto end = std::chrono::steady_clock::now();
 				//std::cout << i << "\t" << j << "\t" << results.size() - lastSize << std::endl;
 				//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000.0 << "ms" << std::endl;
 				lastSize = results.size();
