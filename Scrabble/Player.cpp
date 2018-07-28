@@ -45,39 +45,28 @@ Placement Player::solve(Trie & trie, PlacementStrategy strategy)
 	else {
 		for (int r = 0; r < Board::HEIGHT; ++r) {
 			for (int c = 0; c < Board::WIDTH; ++c) {
-				if (board->getLetter(r - 1, c) == 0) {
-					pool.push(
-						[&trie, this, r, c, &results](int id) {
+				pool.push([&trie, this, r, c, &results](int id) {
+					TrieTracker tracker(trie);
+					std::list<Letter> threadIndependentLetters;
+					for (auto l : letters) {
+						threadIndependentLetters.push_back(l);
+					}
+					std::string curWord;
+					std::string curLetters;
+					SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
 
-						TrieTracker tracker(trie);
-						std::list<Letter> threadIndependentLetters;
-						for (auto l : letters) {
-							threadIndependentLetters.push_back(l);
-						}
-						std::string curWord;
-						std::string curLetters;
-						SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
+					if (board->getLetter(r - 1, c) == 0) {
 						solve(tracker, seen, r, c, r, c, PlacementType::DOWN, results, threadIndependentLetters, curWord, curLetters, false, 1, 0, 0);
-						delete seen;
-					});
-				}
+					}
+					tracker.resetState();
+					seen->reset();
+					if (board->getLetter(r, c - 1) == 0) {
 
-				if (board->getLetter(r, c - 1) == 0) {
-					pool.push(
-						[&trie, this, r, c, &results](int id) {
-						
-						TrieTracker tracker(trie);
-						std::list<Letter> threadIndependentLetters;
-						for (auto l : letters) {
-							threadIndependentLetters.push_back(l);
-						}
-						std::string curWord;
-						std::string curLetters;
-						SeenTrie::SeenTrie * seen = new SeenTrie::SeenTrie();
 						solve(tracker, seen, r, c, r, c, PlacementType::CROSS, results, threadIndependentLetters, curWord, curLetters, false, 1, 0, 0);
-						delete seen;
-					});
-				}
+					}
+					delete seen;
+				});
+				
 			}
 		}
 	}
