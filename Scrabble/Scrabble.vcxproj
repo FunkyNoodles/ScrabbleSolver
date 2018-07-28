@@ -71,11 +71,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Resources\boost_1_67_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Resources\boost_1_67_0;D:\Resources\ctpl;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Resources\boost_1_67_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,6 +95,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Resources\boost_1_67_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,11 +115,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Full</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Resources\boost_1_67_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -127,18 +129,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="Dictionary.cpp" />
     <ClCompile Include="Letter.cpp" />
     <ClCompile Include="LetterBag.cpp" />
     <ClCompile Include="Placement.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SeenTrie.cpp" />
+    <ClCompile Include="ThreadSafeVector.cpp" />
     <ClCompile Include="Trie.cpp" />
     <ClCompile Include="TrieTracker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="Dictionary.h" />
     <ClInclude Include="EnumUtils.h" />
     <ClInclude Include="Letter.h" />
     <ClInclude Include="LetterBag.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="PlacementStrategy.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SeenTrie.h" />
+    <ClInclude Include="ThreadSafeVector.h" />
     <ClInclude Include="Trie.h" />
     <ClInclude Include="TrieTracker.h" />
   </ItemGroup>

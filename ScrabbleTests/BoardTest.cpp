@@ -22,9 +22,9 @@ TEST_F(BoardTest, getBoardTypeCorrect) {
 }
 
 TEST_F(BoardTest, ioCorrect) {
+	LetterBag letterBag(0);
 	Placement p0(0, 0, PlacementType::CROSS, "WEPT", 0);
 	Placement p1(0, 3, PlacementType::DOWN, "AP", 0);
-	LetterBag letterBag(0);
 	Board board(&letterBag);
 	board.place(p0);
 	board.place(p1);

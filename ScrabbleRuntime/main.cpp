@@ -1,5 +1,4 @@
 #include "../Scrabble/LetterBag.h"
-#include "../Scrabble/Dictionary.h"
 #include "../Scrabble/Trie.h"
 #include "../Scrabble/Player.h"
 #include "../Scrabble/Board.h"
@@ -29,20 +28,19 @@ int main() {
 	Player player1(&b), player2(&b);
 	bool player1Pass = false, player2Pass = false;
 	int player1Score = 0, player2Score = 0;
-	TrieTracker tracker1(&trie);
-	TrieTracker tracker2(&trie);
 
-	//std::ifstream inputTestBoard;
-	//inputTestBoard.open("InputTestBoard.txt");
-	//if (inputTestBoard.is_open()) {
-	//	inputTestBoard >> b;
-	//}
-	//inputTestBoard.close();
+	std::ifstream inputTestBoard;
+	inputTestBoard.open("InputTestBoard.txt");
+	if (inputTestBoard.is_open()) {
+		inputTestBoard >> b;
+	}
+	inputTestBoard.close();
 
-	std::cout << b << std::endl;
+	//std::cout << b << std::endl;
 
-	player1.draw(letterBag);
-	player2.draw(letterBag);
+	//player1.draw(letterBag);
+	//player2.draw(letterBag);
+	player1.populateLetters("ROB OGL");
 
 	std::ofstream testBoardLog;
 	testBoardLog.open("TestBoardLog.log");
@@ -51,11 +49,13 @@ int main() {
 		player1Pass = false;
 		player2Pass = false;
 
-		Placement sol1 = player1.solve(tracker1, PlacementStrategy::GREEDY);
+		Placement sol1 = player1.solve(trie, PlacementStrategy::GREEDY);
 		//player1.writeLetters(std::cout);
 		//player1.writeLetters(testBoardLog);
+
 		//std::cout << sol1.getScore() << std::endl;
 		//testBoardLog << sol1.getScore() << std::endl;
+
 		player1.removeAfterPlacement(sol1);
 		player1.draw(letterBag);
 		if (sol1.getScore() >= 0) {
@@ -72,11 +72,13 @@ int main() {
 		//std::cout << b;
 		//std::cin.get();
 
-		Placement sol2 = player2.solve(tracker2, PlacementStrategy::GREEDY);
+		Placement sol2 = player2.solve(trie, PlacementStrategy::GREEDY);
 		//player2.writeLetters(std::cout);
 		//player2.writeLetters(testBoardLog);
+
 		//std::cout << sol2.getScore() << std::endl;
 		//testBoardLog << sol2.getScore() << std::endl;
+
 		player2.removeAfterPlacement(sol2);
 		player2.draw(letterBag);
 		if (sol2.getScore() >= 0) {
@@ -96,7 +98,7 @@ int main() {
 		/*std::cin.get();*/
 	}
 	end = std::chrono::steady_clock::now();
-	std::cout << "Dictionary loaded, took " <<
+	std::cout << "Running a game took " <<
 		std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / 1000.0 << " s" << std::endl;
 	testBoardLog.close();
 	std::cout << player1Score << ' ' << player2Score << std::endl;

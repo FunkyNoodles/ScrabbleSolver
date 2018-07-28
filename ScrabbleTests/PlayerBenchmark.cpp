@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "../Scrabble/LetterBag.h"
-#include "../Scrabble/Dictionary.h"
 #include "../Scrabble/Trie.h"
 #include "../Scrabble/Player.h"
 #include "../Scrabble/Board.h"
@@ -55,9 +54,8 @@ TEST_F(PlayerBenchmark, solveCorrect) {
 			}
 
 			player.populateLetters(initialLetters);
-			TrieTracker tracker(&trie);
 			auto begin = std::chrono::steady_clock::now();
-			Placement result = player.solve(tracker, PlacementStrategy::GREEDY);
+			Placement result = player.solve(trie, PlacementStrategy::GREEDY);
 			auto end = std::chrono::steady_clock::now();
 			timeSum += std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
 			if (result.getScore() == 40) {

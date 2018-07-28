@@ -34,11 +34,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Resources\boost_1_67_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>D:\Resources\boost_1_67_0\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Resources\boost_1_67_0\stage\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>D:\Resources\boost_1_67_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup>

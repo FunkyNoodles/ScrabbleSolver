@@ -4,7 +4,7 @@
 
 class TrieTest : public ::testing::Test {
 protected:
-	Trie *trie;
+	Trie * trie;
 	TrieTest() {}
 
 	virtual void SetUp() {
@@ -37,7 +37,7 @@ TEST_F(TrieTest, insertInvalidWordShouldThrow) {
 }
 
 TEST_F(TrieTest, stateStepsCorrect) {
-	TrieTracker * tracker = new TrieTracker(trie);
+	TrieTracker * tracker = new TrieTracker(*trie);
 	EXPECT_EQ(tracker->next('X'), false);
 	tracker->next('V');
 	tracker->next('E');

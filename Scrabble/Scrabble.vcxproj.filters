@@ -17,9 +17,6 @@
     <ClCompile Include="Letter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Dictionary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -38,15 +35,15 @@
     <ClCompile Include="SeenTrie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadSafeVector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LetterBag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Letter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dictionary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Board.h">
@@ -71,6 +68,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlacementStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

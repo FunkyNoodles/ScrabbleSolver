@@ -68,7 +68,7 @@ void Trie::deleteNodes(TrieNode * root)
 	if (root == nullptr) {
 		return;
 	}
-	for (int i = 0; i < SIZE; ++i) {
+	for (int i = 0; i < ALPHABET_SIZE; ++i) {
 		deleteNodes(root->children[i]);
 	}
 	delete root;
